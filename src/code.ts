@@ -1,34 +1,36 @@
 figma.showUI(__html__, { width: 320, height: 480 });
 
-interface GroupDimensions {
+interface ElementDimensions {
   name: string;
   width: number;
   height: number;
+  type: 'GROUP' | 'FRAME';
 }
 
 interface DimensionAnalysis {
-  groups: GroupDimensions[];
+  elements: ElementDimensions[];
   allSameSize: boolean;
-  differentSizes: GroupDimensions[];
+  differentSizes: ElementDimensions[];
   standardSize?: { width: number; height: number };
   needsFormatting: boolean;
   maxDimension: number;
 }
 
-// Function to analyze group dimensions in a frame
-function analyzeGroupDimensions(frame: FrameNode): DimensionAnalysis {
-  // Get all top-level groups
-  const groups = frame.children
-    .filter(child => child.type === 'GROUP')
-    .map(group => ({
-      name: group.name,
-      width: Math.round(group.width),
-      height: Math.round(group.height)
+// Function to analyze dimensions of groups and frames in a parent frame
+function analyzeElementDimensions(frame: FrameNode): DimensionAnalysis {
+  // Get all top-level groups and frames
+  const elements = frame.children
+    .filter(child => (child.type === 'GROUP' || (child.type === 'FRAME' && child.name !== 'original_content')))
+    .map(element => ({
+      name: element.name,
+      width: Math.round(element.width),
+      height: Math.round(element.height),
+      type: element.type as 'GROUP' | 'FRAME'
     }));
 
-  if (groups.length === 0) {
+  if (elements.length === 0) {
     return {
-      groups: [],
+      elements: [],
       allSameSize: false,
       differentSizes: [],
       needsFormatting: false,
@@ -36,30 +38,30 @@ function analyzeGroupDimensions(frame: FrameNode): DimensionAnalysis {
     };
   }
 
-  // Find the maximum dimension (width or height) among all groups
+  // Find the maximum dimension (width or height) among all elements
   const maxDimension = Math.max(
-    ...groups.map(group => Math.max(group.width, group.height))
+    ...elements.map(element => Math.max(element.width, element.height))
   );
 
-  // Check if all groups have the same dimensions
-  const firstGroup = groups[0];
-  const allSameSize = groups.every(
-    group => group.width === firstGroup.width && group.height === firstGroup.height
+  // Check if all elements have the same dimensions
+  const firstElement = elements[0];
+  const allSameSize = elements.every(
+    element => element.width === firstElement.width && element.height === firstElement.height
   );
 
-  // Find groups with different dimensions
-  const differentSizes = groups.filter(
-    group => group.width !== firstGroup.width || group.height !== firstGroup.height
+  // Find elements with different dimensions
+  const differentSizes = elements.filter(
+    element => element.width !== firstElement.width || element.height !== firstElement.height
   );
 
   // Determine if formatting is needed (different sizes exist)
   const needsFormatting = differentSizes.length > 0;
 
   return {
-    groups,
+    elements,
     allSameSize,
     differentSizes,
-    standardSize: allSameSize ? { width: firstGroup.width, height: firstGroup.height } : undefined,
+    standardSize: allSameSize ? { width: firstElement.width, height: firstElement.height } : undefined,
     needsFormatting,
     maxDimension
   };
@@ -97,15 +99,9 @@ async function createSpriteSheetFrames(parentFrame: FrameNode, width: number, he
   // Set up auto-layout on the parent frame
   try {
     parentFrame.layoutMode = "HORIZONTAL";
-    console.log('Layout mode set to HORIZONTAL');
-    
-    parentFrame.primaryAxisAlignItems = "MIN"; // Left align
-    console.log('Primary axis alignment set to MIN (left)');
-    
-    parentFrame.counterAxisAlignItems = "MIN"; // Top align
-    console.log('Counter axis alignment set to MIN (top)');
-    
-    parentFrame.itemSpacing = 0; // Remove spacing between items
+    parentFrame.primaryAxisAlignItems = "MIN";
+    parentFrame.counterAxisAlignItems = "CENTER";
+    parentFrame.itemSpacing = 0;
     parentFrame.paddingLeft = 0;
     parentFrame.paddingRight = 0;
     parentFrame.paddingTop = 0;
@@ -119,19 +115,19 @@ async function createSpriteSheetFrames(parentFrame: FrameNode, width: number, he
     figma.notify('Error setting up auto-layout: ' + (error.message || 'Unknown error'));
   }
   
-  // Find all groups (excluding the backup frame)
-  const groups = parentFrame.children
-    .filter(child => child.type === 'GROUP')
+  // Find all groups and frames (excluding the backup frame)
+  const elements = parentFrame.children
+    .filter(child => (child.type === 'GROUP' || (child.type === 'FRAME' && child.name !== 'original_content')))
     .reverse(); // Reverse the order for naming
-  console.log(`Found ${groups.length} groups to process`);
+  console.log(`Found ${elements.length} elements to process`);
   
   // Update UI for frame creation
   figma.ui.postMessage({ type: 'progress-update', step: 'frame' });
   
-  // Process each group
-  groups.forEach((group, index) => {
-    const reverseIndex = groups.length - index; // For reverse naming order
-    console.log(`Processing group ${reverseIndex} of ${groups.length}: ${group.name}`);
+  // Process each element
+  elements.forEach((element, index) => {
+    const reverseIndex = elements.length - index; // For reverse naming order
+    console.log(`Processing element ${reverseIndex} of ${elements.length}: ${element.name}`);
     
     // Create a new frame
     const spriteFrame = figma.createFrame();
@@ -149,21 +145,21 @@ async function createSpriteSheetFrames(parentFrame: FrameNode, width: number, he
     // Add the frame to the parent frame
     parentFrame.insertChild(0, spriteFrame);
     
-    // Move the group into the sprite frame
-    spriteFrame.appendChild(group);
+    // Move the element into the sprite frame
+    spriteFrame.appendChild(element);
     
-    // Center the group in the frame without auto-layout
-    const centerX = (frameSize - group.width) / 2;
-    const centerY = (frameSize - group.height) / 2;
-    group.x = centerX;
-    group.y = centerY;
+    // Center the element in the frame without auto-layout
+    const centerX = (frameSize - element.width) / 2;
+    const centerY = (frameSize - element.height) / 2;
+    element.x = centerX;
+    element.y = centerY;
     
-    console.log(`Centered group in frame ${spriteFrame.name} at (${centerX}, ${centerY})`);
+    console.log(`Centered element in frame ${spriteFrame.name} at (${centerX}, ${centerY})`);
   });
   
   // Create the black background frame at the end
   const blackFrame = figma.createFrame();
-  const frameName = `${groups.length + 1}_sprite_frame_${parentFrame.name}_bg`;
+  const frameName = `${elements.length + 1}_sprite_frame_${parentFrame.name}_bg`;
   blackFrame.name = frameName;
   blackFrame.resize(frameSize, frameSize);
   blackFrame.fills = [{
@@ -179,13 +175,13 @@ async function createSpriteSheetFrames(parentFrame: FrameNode, width: number, he
 
   // Create headline text (numbers)
   const headlineText = figma.createText();
-  const frameCount = groups.length;
+  const frameCount = elements.length;
   headlineText.characters = `1-${frameCount}`;
   headlineText.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
   headlineText.fontName = { family: "Inter", style: "Bold" };
   headlineText.textAutoResize = "WIDTH_AND_HEIGHT";
   headlineText.textAlignHorizontal = "CENTER";
-  headlineText.fontSize = frameSize * 0.4; // Start with larger size for numbers
+  headlineText.fontSize = frameSize * 0.4;
 
   // Create subhead text (name)
   const subheadText = figma.createText();
@@ -194,7 +190,7 @@ async function createSpriteSheetFrames(parentFrame: FrameNode, width: number, he
   subheadText.fontName = { family: "Inter", style: "Regular" };
   subheadText.textAutoResize = "WIDTH_AND_HEIGHT";
   subheadText.textAlignHorizontal = "CENTER";
-  subheadText.fontSize = frameSize * 0.15; // Smaller size for name
+  subheadText.fontSize = frameSize * 0.15;
 
   // Add texts to frame
   blackFrame.appendChild(headlineText);
@@ -202,42 +198,31 @@ async function createSpriteSheetFrames(parentFrame: FrameNode, width: number, he
 
   // Position headline text
   const headlineMaxScale = Math.min(
-    (frameSize * 0.9) / headlineText.width,  // Use 90% of frame width
-    (frameSize * 0.5) / headlineText.height  // Use 50% of frame height for numbers
+    (frameSize * 0.9) / headlineText.width,
+    (frameSize * 0.5) / headlineText.height
   );
   headlineText.resize(headlineText.width * headlineMaxScale, headlineText.height * headlineMaxScale);
   headlineText.x = (frameSize - headlineText.width) / 2;
-  headlineText.y = (frameSize * 0.3) - (headlineText.height / 2); // Position in upper portion
+  headlineText.y = (frameSize * 0.3) - (headlineText.height / 2);
 
   // Position subhead text
   const subheadMaxScale = Math.min(
-    (frameSize * 0.8) / subheadText.width,  // Use 80% of frame width
-    (frameSize * 0.2) / subheadText.height  // Use 20% of frame height for name
+    (frameSize * 0.8) / subheadText.width,
+    (frameSize * 0.2) / subheadText.height
   );
   subheadText.resize(subheadText.width * subheadMaxScale, subheadText.height * subheadMaxScale);
   subheadText.x = (frameSize - subheadText.width) / 2;
-  subheadText.y = (frameSize * 0.7) - (subheadText.height / 2); // Position in lower portion
+  subheadText.y = (frameSize * 0.7) - (subheadText.height / 2);
 
   // Insert black frame at the end
   parentFrame.insertChild(parentFrame.children.length, blackFrame);
   console.log('Added black background frame with centered text at the end');
-
-  // Ensure parent frame layout is correct
-  parentFrame.layoutMode = "HORIZONTAL";
-  parentFrame.primaryAxisAlignItems = "MIN";
-  parentFrame.counterAxisAlignItems = "CENTER";
-  parentFrame.itemSpacing = 0;
-  parentFrame.paddingLeft = 0;
-  parentFrame.paddingRight = 0;
-  parentFrame.paddingTop = 0;
-  parentFrame.paddingBottom = 0;
   
   // Set parent frame sizing to hug content
   parentFrame.layoutSizingHorizontal = "HUG";
   parentFrame.layoutSizingVertical = "HUG";
-  
   console.log('Adjusted parent frame layout to hug contents');
-
+  
   // Update UI for completion
   figma.ui.postMessage({ type: 'progress-update', step: 'complete' });
   console.log('All sprite frames created!');
@@ -252,7 +237,7 @@ function updateSelectionInfo() {
       type: 'selection-update',
       message: 'Select a frame to analyze',
       hasFrame: false,
-      groupCount: 0,
+      elementCount: 0,
       dimensionAnalysis: null
     });
     return;
@@ -263,7 +248,7 @@ function updateSelectionInfo() {
       type: 'selection-update',
       message: 'Please select only one frame',
       hasFrame: false,
-      groupCount: 0,
+      elementCount: 0,
       dimensionAnalysis: null
     });
     return;
@@ -276,20 +261,23 @@ function updateSelectionInfo() {
       type: 'selection-update',
       message: 'Please select a frame',
       hasFrame: false,
-      groupCount: 0,
+      elementCount: 0,
       dimensionAnalysis: null
     });
     return;
   }
   
-  const groupCount = selectedNode.children.filter(child => child.type === 'GROUP').length;
-  const dimensionAnalysis = analyzeGroupDimensions(selectedNode);
+  const elementCount = selectedNode.children.filter(
+    child => child.type === 'GROUP' || (child.type === 'FRAME' && child.name !== 'original_content')
+  ).length;
+  
+  const dimensionAnalysis = analyzeElementDimensions(selectedNode);
 
   figma.ui.postMessage({
     type: 'selection-update',
     message: `Frame "${selectedNode.name}" selected`,
     hasFrame: true,
-    groupCount,
+    elementCount,
     dimensionAnalysis
   });
 }
@@ -312,14 +300,14 @@ figma.ui.onmessage = async (msg) => {
     const selection = figma.currentPage.selection;
     if (selection.length === 1 && selection[0].type === 'FRAME') {
       const parentFrame = selection[0];
-      const analysis = analyzeGroupDimensions(parentFrame);
+      const analysis = analyzeElementDimensions(parentFrame);
       
-      if (analysis.groups.length > 0) {
-        // Create frames for all groups
+      if (analysis.elements.length > 0) {
+        // Create frames for all elements
         await createSpriteSheetFrames(parentFrame, msg.width, msg.height);
-        figma.notify(`Created ${analysis.groups.length} sprite frames!`);
+        figma.notify(`Created ${analysis.elements.length} sprite frames!`);
       } else {
-        figma.notify('No groups found in the selected frame');
+        figma.notify('No groups or frames found in the selected frame');
       }
     }
   }
