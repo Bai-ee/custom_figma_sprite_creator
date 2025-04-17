@@ -169,6 +169,21 @@
       .group-list::-webkit-scrollbar-thumb:hover {
         background: #555555;
       }
+      
+      /* Button group styling */
+      .button-group {
+        display: flex;
+        gap: 15px;
+        margin: 20px 0;
+        width: 100%;
+      }
+      
+      .button-group button {
+        flex: 1;
+        margin: 0;
+        min-width: 0;
+        white-space: nowrap;
+      }
     </style>
   </head>
   <body>
@@ -204,8 +219,10 @@
       </div>
     </div>
 
-    <button id="refresh">Refresh Analysis</button>
-    <button id="create" disabled>Create Sprite Sheet</button>
+    <div class="button-group">
+      <button id="refresh">Refresh Analysis</button>
+      <button id="create" disabled>Create Sprite Sheet</button>
+    </div>
     
     <script>
       const widthInput = document.getElementById('width');
