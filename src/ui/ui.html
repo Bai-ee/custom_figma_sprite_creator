@@ -241,25 +241,25 @@
       heightInput.addEventListener('input', validateInputs);
 
       function formatDimensionInfo(analysis) {
-        if (!analysis || !analysis.groups || analysis.groups.length === 0) {
+        if (!analysis || !analysis.elements || analysis.elements.length === 0) {
           return '';
         }
 
-        let html = '<h3>Group Dimensions:</h3>';
+        let html = '<h3>Element Dimensions:</h3>';
         
         if (analysis.allSameSize) {
-          html += `<p class="success">✓ All groups are the same size: ${analysis.standardSize.width}x${analysis.standardSize.height}px</p>`;
+          html += `<p class="success">✓ All elements are the same size: ${analysis.standardSize.width}x${analysis.standardSize.height}px</p>`;
         } else {
-          html += '<p class="warning">⚠️ Groups have different sizes:</p>';
+          html += '<p class="warning">⚠️ Elements have different sizes:</p>';
           html += '<div class="group-list">';
-          analysis.groups.forEach(group => {
-            html += `<div class="group-item">${group.name}: ${group.width}x${group.height}px</div>`;
+          analysis.elements.forEach(element => {
+            html += `<div class="group-item">${element.name}: ${element.width}x${element.height}px</div>`;
           });
           html += '</div>';
         }
 
         html += `<p>${analysis.needsFormatting ? 
-          '<span class="warning">Needs formatting: Groups should be the same size</span>' : 
+          '<span class="warning">Needs formatting: Elements should be the same size</span>' : 
           '<span class="success">No formatting needed</span>'}</p>`;
 
         // Update suggested size text
@@ -311,7 +311,7 @@
         if (msg.type === 'selection-update') {
           document.getElementById('selection-status').textContent = msg.message;
           document.getElementById('group-count').textContent = msg.hasFrame 
-            ? `Top-level groups: ${msg.groupCount}` 
+            ? `Top-level elements: ${msg.elementCount}` 
             : '';
           document.getElementById('dimension-info').innerHTML = msg.hasFrame 
             ? formatDimensionInfo(msg.dimensionAnalysis)
