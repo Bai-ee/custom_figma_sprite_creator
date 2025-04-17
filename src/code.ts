@@ -66,7 +66,7 @@ function analyzeGroupDimensions(frame: FrameNode): DimensionAnalysis {
 }
 
 // Function to create a sprite sheet frame with custom dimensions
-function createSpriteSheetFrames(parentFrame: FrameNode, width: number, height: number): void {
+async function createSpriteSheetFrames(parentFrame: FrameNode, width: number, height: number): Promise<void> {
   console.log('Starting sprite sheet creation process...');
   
   // First, create a backup of original content
@@ -161,11 +161,83 @@ function createSpriteSheetFrames(parentFrame: FrameNode, width: number, height: 
     console.log(`Centered group in frame ${spriteFrame.name} at (${centerX}, ${centerY})`);
   });
   
-  // Resize parent frame to fit content
+  // Create the black background frame at the end
+  const blackFrame = figma.createFrame();
+  const frameName = `${groups.length + 1}_sprite_frame_${parentFrame.name}_bg`;
+  blackFrame.name = frameName;
+  blackFrame.resize(frameSize, frameSize);
+  blackFrame.fills = [{
+    type: 'SOLID',
+    color: { r: 0, g: 0, b: 0 }
+  }];
+
+  // Load fonts
+  await Promise.all([
+    figma.loadFontAsync({ family: "Inter", style: "Bold" }),
+    figma.loadFontAsync({ family: "Inter", style: "Regular" })
+  ]);
+
+  // Create headline text (numbers)
+  const headlineText = figma.createText();
+  const frameCount = groups.length;
+  headlineText.characters = `1-${frameCount}`;
+  headlineText.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
+  headlineText.fontName = { family: "Inter", style: "Bold" };
+  headlineText.textAutoResize = "WIDTH_AND_HEIGHT";
+  headlineText.textAlignHorizontal = "CENTER";
+  headlineText.fontSize = frameSize * 0.4; // Start with larger size for numbers
+
+  // Create subhead text (name)
+  const subheadText = figma.createText();
+  subheadText.characters = parentFrame.name;
+  subheadText.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
+  subheadText.fontName = { family: "Inter", style: "Regular" };
+  subheadText.textAutoResize = "WIDTH_AND_HEIGHT";
+  subheadText.textAlignHorizontal = "CENTER";
+  subheadText.fontSize = frameSize * 0.15; // Smaller size for name
+
+  // Add texts to frame
+  blackFrame.appendChild(headlineText);
+  blackFrame.appendChild(subheadText);
+
+  // Position headline text
+  const headlineMaxScale = Math.min(
+    (frameSize * 0.9) / headlineText.width,  // Use 90% of frame width
+    (frameSize * 0.5) / headlineText.height  // Use 50% of frame height for numbers
+  );
+  headlineText.resize(headlineText.width * headlineMaxScale, headlineText.height * headlineMaxScale);
+  headlineText.x = (frameSize - headlineText.width) / 2;
+  headlineText.y = (frameSize * 0.3) - (headlineText.height / 2); // Position in upper portion
+
+  // Position subhead text
+  const subheadMaxScale = Math.min(
+    (frameSize * 0.8) / subheadText.width,  // Use 80% of frame width
+    (frameSize * 0.2) / subheadText.height  // Use 20% of frame height for name
+  );
+  subheadText.resize(subheadText.width * subheadMaxScale, subheadText.height * subheadMaxScale);
+  subheadText.x = (frameSize - subheadText.width) / 2;
+  subheadText.y = (frameSize * 0.7) - (subheadText.height / 2); // Position in lower portion
+
+  // Insert black frame at the end
+  parentFrame.insertChild(parentFrame.children.length, blackFrame);
+  console.log('Added black background frame with centered text at the end');
+
+  // Ensure parent frame layout is correct
+  parentFrame.layoutMode = "HORIZONTAL";
+  parentFrame.primaryAxisAlignItems = "MIN";
+  parentFrame.counterAxisAlignItems = "CENTER";
+  parentFrame.itemSpacing = 0;
+  parentFrame.paddingLeft = 0;
+  parentFrame.paddingRight = 0;
+  parentFrame.paddingTop = 0;
+  parentFrame.paddingBottom = 0;
+  
+  // Set parent frame sizing to hug content
   parentFrame.layoutSizingHorizontal = "HUG";
   parentFrame.layoutSizingVertical = "HUG";
-  console.log('Resized parent frame to hug content');
   
+  console.log('Adjusted parent frame layout to hug contents');
+
   // Update UI for completion
   figma.ui.postMessage({ type: 'progress-update', step: 'complete' });
   console.log('All sprite frames created!');
@@ -244,7 +316,7 @@ figma.ui.onmessage = async (msg) => {
       
       if (analysis.groups.length > 0) {
         // Create frames for all groups
-        createSpriteSheetFrames(parentFrame, msg.width, msg.height);
+        await createSpriteSheetFrames(parentFrame, msg.width, msg.height);
         figma.notify(`Created ${analysis.groups.length} sprite frames!`);
       } else {
         figma.notify('No groups found in the selected frame');
