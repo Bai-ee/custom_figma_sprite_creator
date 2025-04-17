@@ -6,52 +6,65 @@
         font: 12px sans-serif;
         text-align: center;
         margin: 20px;
-        background-color: #FFE5E5;  /* Light red background */
+        background-color: #1A1A1A;  /* Dark background */
+        color: #FFFFFF;  /* White text */
       }
       button {
         border-radius: 5px;
-        background: white;
-        color: black;
+        background: #333333;
+        color: white;
         border: none;
         padding: 8px 15px;
         margin: 0 5px;
-        box-shadow: inset 0 0 0 1px #FF4444;  /* Red border */
+        box-shadow: inset 0 0 0 1px #666666;
         outline: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      button:hover {
+        background: #444444;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
       #create {
         box-shadow: none;
-        background: #FF4444;  /* Red background */
-        color: white;
+        background: #FFFFFF;
+        color: #000000;
+      }
+      #create:hover {
+        background: #E0E0E0;
       }
       .status {
         padding: 10px;
         margin: 10px 0;
         border-radius: 5px;
-        background: #FFB2B2;  /* Lighter red */
+        background: #2A2A2A;
       }
       .count {
         font-size: 24px;
         font-weight: bold;
-        color: #FF4444;  /* Red text */
+        color: #FFFFFF;
         margin: 10px 0;
       }
       .dimension-info {
         text-align: left;
         padding: 10px;
         margin: 10px 0;
-        background: #FFCCCC;  /* Very light red */
+        background: #2A2A2A;
         border-radius: 5px;
       }
       .warning {
-        color: #FF6B00;
+        color: #FFFFFF;
         font-weight: bold;
       }
       .success {
-        color: #FF4444;  /* Red success color */
+        color: #FFFFFF;
         font-weight: bold;
       }
       .info {
-        color: #FF4444;  /* Red info color */
+        color: #FFFFFF;
         font-weight: bold;
       }
       .group-list {
@@ -59,13 +72,13 @@
         padding: 5px;
         max-height: 150px;
         overflow-y: auto;
-        background: white;
+        background: #333333;
         border-radius: 3px;
-        border: 1px solid #FFB2B2;  /* Light red border */
+        border: 1px solid #444444;
       }
       .group-item {
         padding: 4px;
-        border-bottom: 1px solid #FFE5E5;  /* Very light red border */
+        border-bottom: 1px solid #444444;
       }
       .group-item:last-child {
         border-bottom: none;
@@ -73,13 +86,13 @@
       .sprite-info {
         margin-top: 15px;
         padding: 10px;
-        background: #FFE5E5;  /* Light red background */
+        background: #2A2A2A;
         border-radius: 5px;
       }
       .progress-checklist {
         margin-top: 15px;
         padding: 10px;
-        background: #FFCCCC;
+        background: #2A2A2A;
         border-radius: 5px;
         text-align: left;
       }
@@ -89,22 +102,23 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        color: #CCCCCC;
       }
       .checklist-item.done {
-        color: #FF4444;
+        color: #FFFFFF;
       }
       .checklist-item:before {
         content: "◻️";
       }
       .checklist-item.done:before {
         content: "✓";
-        color: #FF4444;
+        color: #FFFFFF;
         font-weight: bold;
       }
       .input-group {
         margin: 15px 0;
         text-align: left;
-        background: #FFCCCC;  /* Very light red */
+        background: #2A2A2A;
         padding: 15px;
         border-radius: 5px;
       }
@@ -116,22 +130,44 @@
       }
       .input-row label {
         flex: 0 0 80px;
+        color: #FFFFFF;
       }
       input[type="number"] {
         flex: 1;
         padding: 8px;
-        border: 1px solid #FFB2B2;  /* Light red border */
+        border: 1px solid #444444;
         border-radius: 4px;
         width: 80px;
+        background: #333333;
+        color: #FFFFFF;
       }
       input[type="number"]:focus {
         outline: none;
-        border-color: #FF4444;  /* Red border on focus */
+        border-color: #FFFFFF;
       }
       .suggested-size {
         font-size: 11px;
-        color: #FF4444;  /* Red text */
+        color: #CCCCCC;
         margin-top: 4px;
+      }
+      h2, h3 {
+        color: #FFFFFF;
+        margin-bottom: 15px;
+      }
+      /* Custom scrollbar for group list */
+      .group-list::-webkit-scrollbar {
+        width: 8px;
+      }
+      .group-list::-webkit-scrollbar-track {
+        background: #1A1A1A;
+        border-radius: 4px;
+      }
+      .group-list::-webkit-scrollbar-thumb {
+        background: #444444;
+        border-radius: 4px;
+      }
+      .group-list::-webkit-scrollbar-thumb:hover {
+        background: #555555;
       }
     </style>
   </head>
