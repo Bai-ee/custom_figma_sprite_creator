@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+    <style>
+      body {
+        font: 12px sans-serif;
+        text-align: center;
+        margin: 20px;
+        background-color: #1A1A1A;
+        color: #FFFFFF;
+      }
+
+      .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      .deployment-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #333333;
+        transition: background-color 0.3s ease;
+        position: absolute;
+        right: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .deployment-indicator.active {
+        background-color: #4CAF50;
+        animation: pulse 1s;
+      }
+
+      @keyframes pulse {
+        0% { transform: translateY(-50%) scale(1); opacity: 1; }
+        50% { transform: translateY(-50%) scale(1.5); opacity: 0.7; }
+        100% { transform: translateY(-50%) scale(1); opacity: 1; }
+      }
+
+      /* Rest of your existing styles */
+    </style>
+  </head>
+  <body>
+    <div class="header-container">
+      <h2>Sprite Sheet Maker</h2>
+      <div id="deployment-indicator" class="deployment-indicator"></div>
+    </div>
+
+    <script>
+      // Deployment indicator logic
+      let deploymentTimestamp = Date.now();
+      
+      function updateDeploymentIndicator() {
+        console.log('Updating deployment indicator');
+        const indicator = document.getElementById('deployment-indicator');
+        if (!indicator) {
+          console.error('Deployment indicator element not found');
+          return;
+        }
+        
+        indicator.classList.remove('active');
+        // Force reflow
+        void indicator.offsetWidth;
+        indicator.classList.add('active');
+        deploymentTimestamp = Date.now();
+        
+        // Reset after animation
+        setTimeout(() => {
+          indicator.classList.remove('active');
+        }, 2000);
+      }
+
+      // Call immediately on load
+      window.addEventListener('load', () => {
+        console.log('Page loaded, updating indicator');
+        updateDeploymentIndicator();
+      });
+
+      // Handle deployment messages
+      window.addEventListener('message', (event) => {
+        const msg = event.data.pluginMessage;
+        if (msg && msg.type === 'code-deployed') {
+          console.log('Received deployment message');
+          updateDeploymentIndicator();
+        }
+      });
+    </script>
+
+    <!-- Rest of your existing HTML -->
+  </body>
+</html> 

@@ -3,228 +3,984 @@
   <head>
     <style>
       body {
-        font: 12px sans-serif;
-        text-align: center;
-        margin: 20px;
-        background-color: #1A1A1A;  /* Dark background */
-        color: #FFFFFF;  /* White text */
-      }
-      button {
-        border-radius: 5px;
-        background: #333333;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        margin: 0 5px;
-        box-shadow: inset 0 0 0 1px #666666;
-        outline: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      button:hover {
-        background: #444444;
-      }
-      button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      #create {
-        box-shadow: none;
-        background: #FFFFFF;
-        color: #000000;
-      }
-      #create:hover {
-        background: #E0E0E0;
-      }
-      .status {
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 5px;
-        background: #2A2A2A;
-      }
-      .count {
-        font-size: 24px;
-        font-weight: bold;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #2C2C2C;
         color: #FFFFFF;
-        margin: 10px 0;
       }
-      .dimension-info {
-        text-align: left;
-        padding: 10px;
-        margin: 10px 0;
-        background: #2A2A2A;
-        border-radius: 5px;
-      }
-      .warning {
-        color: #FFFFFF;
-        font-weight: bold;
-      }
-      .success {
-        color: #FFFFFF;
-        font-weight: bold;
-      }
-      .info {
-        color: #FFFFFF;
-        font-weight: bold;
-      }
-      .group-list {
-        margin: 10px 0;
-        padding: 5px;
-        max-height: 150px;
-        overflow-y: auto;
-        background: #333333;
-        border-radius: 3px;
-        border: 1px solid #444444;
-      }
-      .group-item {
-        padding: 4px;
+
+      /* Tab Styles */
+      .tabs {
+        display: flex;
+        margin-bottom: 20px;
         border-bottom: 1px solid #444444;
       }
-      .group-item:last-child {
-        border-bottom: none;
+
+      .tab {
+        padding: 8px 16px;
+        font-size: 13px;
+        color: #999999;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-right: 16px;
       }
-      .sprite-info {
-        margin-top: 15px;
-        padding: 10px;
+
+      .tab:hover {
+        color: #FFFFFF;
+      }
+
+      .tab.active {
+        color: #18A0FB;
+        border-bottom-color: #18A0FB;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      /* Chat Styles */
+      .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 360px;
+      }
+
+      .chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 12px;
         background: #2A2A2A;
-        border-radius: 5px;
+        border-radius: 4px;
+        margin-bottom: 12px;
       }
-      .progress-checklist {
-        margin-top: 15px;
-        padding: 10px;
+
+      .message {
+        margin-bottom: 12px;
+        padding: 8px 12px;
+        border-radius: 4px;
+        max-width: 85%;
+      }
+
+      .message.user {
+        background: #18A0FB;
+        color: white;
+        align-self: flex-end;
+      }
+
+      .message.assistant {
+        background: #3A3A3A;
+        color: white;
+        align-self: flex-start;
+      }
+
+      .message .timestamp {
+        font-size: 10px;
+        opacity: 0.7;
+        margin-top: 4px;
+      }
+
+      .chat-input-container {
+        display: flex;
+        gap: 8px;
+      }
+
+      .chat-input {
+        flex-grow: 1;
+        padding: 8px 12px;
+        border: 1px solid #444444;
+        border-radius: 4px;
         background: #2A2A2A;
-        border-radius: 5px;
-        text-align: left;
+        color: white;
+        font-size: 13px;
+        resize: none;
+        min-height: 38px;
+        max-height: 120px;
       }
-      .checklist-item {
-        margin: 5px 0;
-        padding: 5px;
+
+      .chat-input:focus {
+        outline: none;
+        border-color: #18A0FB;
+      }
+
+      .chat-settings {
+        margin-bottom: 16px;
+        padding: 12px;
+        background: #2A2A2A;
+        border-radius: 4px;
+      }
+
+      .settings-row {
         display: flex;
         align-items: center;
         gap: 8px;
-        color: #CCCCCC;
+        margin-bottom: 8px;
       }
-      .checklist-item.done {
-        color: #FFFFFF;
+
+      .settings-row label {
+        min-width: 100px;
       }
-      .checklist-item:before {
-        content: "◻️";
-      }
-      .checklist-item.done:before {
-        content: "✓";
-        color: #FFFFFF;
-        font-weight: bold;
-      }
-      .input-group {
-        margin: 15px 0;
-        text-align: left;
-        background: #2A2A2A;
-        padding: 15px;
-        border-radius: 5px;
-      }
-      .input-row {
-        display: flex;
-        align-items: center;
-        margin: 8px 0;
-        gap: 8px;
-      }
-      .input-row label {
-        flex: 0 0 80px;
-        color: #FFFFFF;
-      }
-      input[type="number"] {
-        flex: 1;
+
+      .api-key-input {
+        flex-grow: 1;
         padding: 8px;
         border: 1px solid #444444;
         border-radius: 4px;
-        width: 80px;
-        background: #333333;
-        color: #FFFFFF;
+        background: #2A2A2A;
+        color: white;
+        font-family: monospace;
       }
-      input[type="number"]:focus {
-        outline: none;
-        border-color: #FFFFFF;
-      }
-      .suggested-size {
-        font-size: 11px;
-        color: #CCCCCC;
-        margin-top: 4px;
-      }
-      h2, h3 {
-        color: #FFFFFF;
-        margin-bottom: 15px;
-      }
-      /* Custom scrollbar for group list */
-      .group-list::-webkit-scrollbar {
-        width: 8px;
-      }
-      .group-list::-webkit-scrollbar-track {
-        background: #1A1A1A;
+
+      .model-select {
+        padding: 8px;
+        border: 1px solid #444444;
         border-radius: 4px;
+        background: #2A2A2A;
+        color: white;
       }
-      .group-list::-webkit-scrollbar-thumb {
-        background: #444444;
-        border-radius: 4px;
-      }
-      .group-list::-webkit-scrollbar-thumb:hover {
-        background: #555555;
-      }
-      
-      /* Button group styling */
-      .button-group {
+
+      .chat-controls {
         display: flex;
-        gap: 15px;
-        margin: 20px 0;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .typing-indicator {
+        color: #18A0FB;
+        font-size: 12px;
+        margin-top: 4px;
+        display: none;
+      }
+
+      .typing-indicator.active {
+        display: block;
+      }
+
+      .key-input-container {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
         width: 100%;
       }
-      
-      .button-group button {
-        flex: 1;
+
+      .api-key-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        height: 20px;
+        margin-top: 4px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      .status-dot.validating {
+        background-color: #FFA726;
+        animation: pulse 2s infinite;
+      }
+
+      .status-dot.valid {
+        background-color: #4CAF50;
+      }
+
+      .status-dot.invalid {
+        background-color: #F44336;
+      }
+
+      .send-button {
+        position: relative;
+        min-width: 60px;
+      }
+
+      .send-button .spinner {
+        display: none;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: #FFFFFF;
+        animation: spin 1s linear infinite;
+      }
+
+      /* Make status indicators more visible */
+      .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #999999;
+      }
+
+      .status-dot.validating {
+        background-color: #FFA726;
+        animation: pulse 2s infinite;
+      }
+
+      .status-dot.valid {
+        background-color: #4CAF50;
+      }
+
+      .status-dot.invalid {
+        background-color: #F44336;
+      }
+
+      .status-text {
+        color: #FFFFFF;
+        font-size: 12px;
+      }
+
+      .send-button.loading .spinner {
+        display: block;
+      }
+
+      .send-button.loading span {
+        visibility: hidden;
+      }
+
+      @keyframes spin {
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+
+      .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .title {
         margin: 0;
-        min-width: 0;
-        white-space: nowrap;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .deployment-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #4CAF50;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .deployment-indicator.active {
+        opacity: 1;
+        animation: pulse 2s;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.5); }
+        100% { transform: scale(1); }
+      }
+
+      .input-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        align-items: center;
+      }
+
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      label {
+        font-size: 12px;
+        color: #FFFFFF;
+      }
+
+      input[type="number"] {
+        width: 80px;
+        padding: 8px;
+        border: 1px solid #444444;
+        border-radius: 4px;
+        background: #2A2A2A;
+        color: #FFFFFF;
+        font-size: 12px;
+      }
+
+      input[type="number"]:focus {
+        border-color: #18A0FB;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(24, 160, 251, 0.3);
+      }
+
+      .select-input {
+        padding: 8px;
+        border: 1px solid #444444;
+        border-radius: 4px;
+        background: #2A2A2A;
+        color: #FFFFFF;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .select-input:focus {
+        border-color: #18A0FB;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(24, 160, 251, 0.3);
+      }
+
+      button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        background: #18A0FB;
+        color: white;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      button:hover {
+        background: #1890E9;
+      }
+
+      button:disabled {
+        background: #444444;
+        cursor: not-allowed;
+      }
+      
+      .button-group {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      #selection-status {
+        font-size: 12px;
+        color: #999999;
+        margin-bottom: 8px;
+      }
+
+      #group-count {
+        font-size: 12px;
+        color: #999999;
+        margin-bottom: 16px;
+      }
+
+      .progress-checklist {
+        display: none;
+        margin-top: 16px;
+        padding: 12px;
+        background: #2A2A2A;
+        border-radius: 4px;
+      }
+
+      .checklist-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #999999;
+        margin-bottom: 8px;
+      }
+
+      .checklist-item::before {
+        content: "○";
+      }
+
+      .checklist-item.done {
+        color: #4CAF50;
+      }
+
+      .checklist-item.done::before {
+        content: "✓";
+      }
+
+      .sprite-sheet-info {
+        display: none;
+        margin-top: 16px;
+        padding: 12px;
+        background: #2A2A2A;
+        border-radius: 4px;
+      }
+
+      .info-section {
+        margin-bottom: 16px;
+        padding: 12px;
+        background: #333333;
+        border-radius: 4px;
+      }
+
+      .info-section h5 {
+        margin: 0 0 8px 0;
+        font-size: 13px;
+        color: #FFFFFF;
+        font-weight: 500;
+      }
+
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        margin-bottom: 8px;
+      }
+
+      .stat-label {
+        color: #999999;
+      }
+
+      .stat-value {
+        color: #FFFFFF;
+      }
+
+      .ratio-distribution {
+        margin-top: 20px;
+      }
+
+      .size-groups {
+        margin-top: 20px;
+      }
+
+      .outliers {
+        margin-top: 20px;
+      }
+
+      h4 {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        color: #FFFFFF;
+      }
+
+      .ratio-list, .size-list, .outlier-list {
+        font-size: 12px;
+        color: #999999;
+      }
+
+      .warning {
+        color: #FFA726;
+      }
+
+      .success {
+        color: #4CAF50;
+      }
+
+      .group-list {
+        margin-top: 8px;
+        margin-left: 16px;
+      }
+
+      .group-item {
+        margin-bottom: 4px;
+      }
+
+      .section {
+        margin: 16px 0;
+      }
+
+      .section h3 {
+        margin: 0 0 8px 0;
+        color: #FFFFFF;
+      }
+
+      .info-section {
+        margin-bottom: 16px;
+        padding: 12px;
+        background: #333333;
+        border-radius: 4px;
+      }
+
+      .info-section h4 {
+        margin: 0 0 12px 0;
+        font-size: 12px;
+        color: #FFFFFF;
+        font-weight: 500;
+      }
+
+      .export-button {
+        width: 100%;
+        margin-top: 12px;
+        background: #4CAF50;
+      }
+
+      .export-button:hover {
+        background: #45a049;
+      }
+
+      .export-button:disabled {
+        background: #444444;
+      }
+
+      #export-sheet-dimensions, #export-scale-info {
+        font-size: 12px;
+        color: #999999;
+        margin: 4px 0;
+        background: #333333;
+        padding: 8px;
+        border-radius: 4px;
+        text-align: center;
+      }
+
+      #export-scale-info {
+        margin-top: 0;
+      }
+
+      #info-section-title {
+        margin: 0 0 12px 0;
+        font-size: 15px;
+        color: #FFFFFF;
       }
     </style>
   </head>
   <body>
-    <h2>Sprite Sheet Maker</h2>
-    <div class="status" id="selection-status">
-      Select a frame to analyze
-    </div>
-    <div class="count" id="group-count"></div>
-    <div class="dimension-info" id="dimension-info"></div>
-    
-    <div class="input-group">
-      <h3>Container Size</h3>
-      <div class="input-row">
-        <label for="width">Width:</label>
-        <input type="number" id="width" min="1" step="1" placeholder="Width" required>
-        <span>px</span>
-      </div>
-      <div class="input-row">
-        <label for="height">Height:</label>
-        <input type="number" id="height" min="1" step="1" placeholder="Height" required>
-        <span>px</span>
-      </div>
-      <div id="suggested-size" class="suggested-size"></div>
+    <div class="header-container">
+      <h1 class="title">Sprite Sheet Maker</h1>
+      <div id="deployment-indicator" class="deployment-indicator"></div>
     </div>
 
-    <div id="progress-checklist" class="progress-checklist" style="display: none;">
-      <h3>Progress:</h3>
-      <div id="checklist-items">
-        <div class="checklist-item" id="check-parent">Configuring parent frame...</div>
-        <div class="checklist-item" id="check-autolayout">Applying auto-layout...</div>
-        <div class="checklist-item" id="check-frame">Creating sprite sheet frame...</div>
-        <div class="checklist-item" id="check-complete">Setup complete!</div>
+    <div class="tabs">
+      <div class="tab active" data-tab="sprite-sheet">Sprite Sheet</div>
+      <div class="tab" data-tab="ai-chat">AI Chat</div>
+      <div class="tab" data-tab="tools">Tools</div>
+    </div>
+
+    <!-- Sprite Sheet Tab Content -->
+    <div class="tab-content active" id="sprite-sheet-tab">
+      <div id="selection-status">No frame selected</div>
+    <div id="group-count"></div>
+    <div id="dimension-info"></div>
+
+    <div class="input-row">
+    <div class="input-group">
+        <label for="width">Container Width</label>
+        <input type="number" id="width" placeholder="Width">
+      </div>
+      <div class="input-group">
+        <label for="height">Container Height</label>
+        <input type="number" id="height" placeholder="Height">
+      </div>
+      <button id="refresh">↻</button>
+    </div>
+
+    <div id="suggested-size" style="font-size: 12px; color: #999999; margin: 8px 0;"></div>
+
+    <button id="create" disabled>Create Sprite Sheet</button>
+
+    <div id="progress-checklist" class="progress-checklist">
+      <div id="check-create-frame" class="checklist-item">Creating sprite sheet frame</div>
+      <div id="check-clone-elements" class="checklist-item">Cloning elements</div>
+      <div id="check-arrange-elements" class="checklist-item">Arranging elements</div>
+      <div id="check-complete" class="checklist-item">Complete</div>
+    </div>
+
+    <div class="sprite-sheet-info" id="sprite-sheet-info">
+      <h4 id="info-section-title">Frame Info</h4>
+      
+      <div class="info-section">
+        <h5>Frame Dimensions</h5>
+        <div class="info-row">
+          <span class="stat-label">Width:</span>
+          <span class="stat-value" id="frame-width">0px</span>
+        </div>
+        <div class="info-row">
+          <span class="stat-label">Height:</span>
+          <span class="stat-value" id="frame-height">0px</span>
+        </div>
+    </div>
+    
+      <div class="info-section">
+        <h5>Sprite Sheet Dimensions</h5>
+        <div class="info-row">
+          <span class="stat-label">Width:</span>
+          <span class="stat-value" id="sheet-width">0px</span>
+        </div>
+        <div class="info-row">
+          <span class="stat-label">Height:</span>
+          <span class="stat-value" id="sheet-height">0px</span>
+        </div>
+        <div id="sprite-frame-count-row" class="info-row">
+          <span class="stat-label">Sprite Frames:</span>
+          <span class="stat-value" id="sprite-frame-count">0</span>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h5>Export Settings</h5>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="export-width">Frame Width</label>
+            <input type="number" id="export-width" placeholder="Width">
+          </div>
+          <div class="input-group">
+            <label for="export-height">Frame Height</label>
+            <input type="number" id="export-height" placeholder="Height">
+          </div>
+          <button id="reset-export-size" title="Reset to original size">↺</button>
+        </div>
+        <div id="export-sheet-dimensions" style="font-size: 12px; color: #999999; margin: 8px 0;">
+          Sprite Sheet: <span id="export-sheet-width">0</span>×<span id="export-sheet-height">0</span>px
+        </div>
+        <div id="export-scale-info" style="font-size: 12px; color: #999999; margin: 4px 0; background: #333333; padding: 8px; border-radius: 4px; text-align: center;">
+          Scale: <span id="export-scale">1.0</span>×
+        </div>
+        <div id="export-method-info" style="font-size: 12px; color: #4CAF50; margin: 4px 0; background: #333333; padding: 8px; border-radius: 4px; text-align: center;">
+          Creates a flattened copy at exact dimensions
+        </div>
+      </div>
+      
+      <div class="button-group">
+        <button id="export-sheet" class="export-button" disabled>Export Frame</button>
+      </div>
+    </div>
+
+    <div class="ratio-distribution">
+      <h4>Size Distribution</h4>
+      <div class="ratio-list" id="ratio-list">
+        <!-- Ratios will be populated here -->
+      </div>
+    </div>
+
+    <div class="size-groups">
+      <h4>Common Sizes</h4>
+      <div class="size-list" id="size-list">
+        <!-- Size groups will be populated here -->
+      </div>
+        </div>
+
+    <div class="outliers">
+      <h4>Potential Issues</h4>
+      <div class="outlier-list" id="outlier-list">
+        <!-- Outliers will be populated here -->
       </div>
     </div>
 
     <div class="button-group">
-      <button id="refresh">Refresh</button>
-      <button id="create" disabled>Create</button>
+      <button id="analyze-dimensions">Analyze Selection</button>
+      <button id="apply-common-size" disabled>Apply Most Common Size</button>
     </div>
-    
+
+    </div>
+
+    <!-- AI Chat Tab Content -->
+    <div class="tab-content" id="ai-chat-tab">
+      <div class="chat-settings">
+        <div class="settings-row">
+          <label for="api-key">API Key:</label>
+          <div class="key-input-container">
+            <input type="password" id="api-key" class="api-key-input" placeholder="Enter your OpenAI API key" />
+            <div class="api-key-status">
+              <div class="status-dot"></div>
+              <span class="status-text">Waiting for API key...</span>
+            </div>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label for="model-select">Model:</label>
+          <select id="model-select" class="model-select">
+            <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
+            <option value="gpt-4">GPT-4</option>
+            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="typing-indicator" id="typing-indicator">AI is typing...</div>
+        <div class="chat-input-container">
+          <textarea
+            class="chat-input"
+            id="chat-input"
+            placeholder="Type your message here..."
+            rows="1"
+          ></textarea>
+          <button id="send-message" class="send-button">
+            <span>Send</span>
+            <div class="spinner"></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tools-tab">
+      <div style="text-align: center; padding: 40px; color: #999999;">
+        <h3 style="margin: 0; font-size: 16px;">Coming Soon</h3>
+        <p style="margin-top: 8px; font-size: 13px;">Additional tools and features will be available in future updates.</p>
+      </div>
+    </div>
+
     <script>
+      // Chat functionality
+      let messages = [];
+      let apiKey = '';
+      
+      // Function to update API key status UI
+      function updateApiKeyStatus(status, message) {
+        const statusDot = document.querySelector('.status-dot');
+        const statusText = document.querySelector('.status-text');
+        
+        // Remove all possible status classes
+        statusDot.classList.remove('validating', 'valid', 'invalid');
+        // Add the new status class
+        statusDot.classList.add(status);
+        
+        statusText.textContent = message;
+        
+        // Log for debugging
+        console.log('Status updated:', status, message);
+      }
+
+      // Function to validate API key
+      async function validateApiKey(key) {
+        console.log('Starting API key validation...');
+        
+        if (!key) {
+          console.log('No API key provided');
+          updateApiKeyStatus('invalid', 'API key required');
+          return false;
+        }
+
+        console.log('API key present, validating...');
+        updateApiKeyStatus('validating', 'Validating API key...');
+        
+        try {
+          const response = await fetch('https://api.openai.com/v1/models', {
+            headers: {
+              'Authorization': `Bearer ${key}`
+            }
+          });
+
+          if (response.ok) {
+            console.log('API key validation successful');
+            updateApiKeyStatus('valid', 'API key valid');
+            return true;
+          } else {
+            console.log('API key validation failed');
+            updateApiKeyStatus('invalid', 'Invalid API key');
+            return false;
+          }
+        } catch (error) {
+          updateApiKeyStatus('invalid', 'Error validating API key');
+          return false;
+        }
+      }
+
+      let validateTimeout;
+      document.getElementById('api-key').addEventListener('input', (e) => {
+        apiKey = e.target.value.trim();
+        
+        // Save API key using Figma's client storage
+        parent.postMessage({ pluginMessage: { type: 'save-api-key', key: apiKey } }, '*');
+        
+        // Clear previous timeout
+        if (validateTimeout) clearTimeout(validateTimeout);
+        
+        // Show validating status immediately
+        updateApiKeyStatus('validating', 'Waiting to validate...');
+        
+        // Set new timeout to validate after typing stops
+        validateTimeout = setTimeout(() => validateApiKey(apiKey), 1000);
+      });
+
+      // Request saved API key from Figma
+      parent.postMessage({ pluginMessage: { type: 'load-api-key' } }, '*');
+      
+      // Listen for messages from the plugin code
+      window.onmessage = (event) => {
+        const msg = event.data.pluginMessage;
+        if (!msg) return;
+
+        if (msg.type === 'api-key-loaded') {
+          const savedApiKey = msg.key;
+          if (savedApiKey) {
+            document.getElementById('api-key').value = savedApiKey;
+            apiKey = savedApiKey;
+            // Validate the saved API key
+            validateApiKey(savedApiKey);
+          } else {
+            updateApiKeyStatus('invalid', 'API key required');
+          }
+        }
+      };
+
+      // Auto-resize textarea
+      document.getElementById('chat-input').addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+
+      // Send message on Enter (Shift+Enter for new line)
+      document.getElementById('chat-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendChatMessage();
+        }
+      });
+
+      document.getElementById('send-message').addEventListener('click', sendChatMessage);
+
+      function addMessage(content, role) {
+        const messagesContainer = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        
+        const textDiv = document.createElement('div');
+        textDiv.className = 'message-text';
+        textDiv.textContent = content;
+        
+        const timestampDiv = document.createElement('div');
+        timestampDiv.className = 'timestamp';
+        timestampDiv.textContent = new Date().toLocaleTimeString();
+        
+        messageDiv.appendChild(textDiv);
+        messageDiv.appendChild(timestampDiv);
+        messagesContainer.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      async function sendChatMessage() {
+        const sendButton = document.getElementById('send-message');
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        const modelSelect = document.getElementById('model-select');
+        
+        if (!message) {
+          addMessage('Please enter a message', 'assistant');
+          return;
+        }
+        
+        if (!apiKey) {
+          addMessage('Please enter your OpenAI API key', 'assistant');
+          return;
+        }
+
+        // Disable send button and show loading state
+        sendButton.disabled = true;
+        sendButton.classList.add('loading');
+        
+        // Clear input
+        input.value = '';
+        input.style.height = 'auto';
+        
+        // Add user message
+        addMessage(message, 'user');
+        messages.push({ role: 'user', content: message });
+        
+        // Show typing indicator
+        document.getElementById('typing-indicator').classList.add('active');
+        
+        try {
+          console.log('Sending request to OpenAI...');
+          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: modelSelect.value,
+              messages: [
+                { role: 'system', content: 'You are a helpful assistant in a Figma plugin focused on sprite sheet creation and image manipulation. Provide concise, relevant answers.' },
+                ...messages
+              ],
+              temperature: 0.7,
+              max_tokens: 1000,
+            })
+          });
+
+          console.log('Response received:', response.status);
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('API Error:', errorData);
+            throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log('API Response:', data);
+          
+          if (!data.choices || !data.choices[0]?.message?.content) {
+            throw new Error('Invalid response format from API');
+          }
+
+          const reply = data.choices[0].message.content;
+          
+          // Add AI response
+          addMessage(reply, 'assistant');
+          messages.push({ role: 'assistant', content: reply });
+        } catch (error) {
+          console.error('Chat Error:', error);
+          addMessage(`Error: ${error.message}. Please check your API key and try again.`, 'assistant');
+        } finally {
+          document.getElementById('typing-indicator').classList.remove('active');
+          // Re-enable send button and remove loading state
+          sendButton.disabled = false;
+          sendButton.classList.remove('loading');
+        }
+      }
+    </script>
+    <script>
+      // Add deployment indicator logic at the start of the script
+      let deploymentTimestamp = Date.now();
+      
+      function updateDeploymentIndicator() {
+        const indicator = document.getElementById('deployment-indicator');
+        indicator.classList.remove('active');
+        // Trigger reflow
+        void indicator.offsetWidth;
+        indicator.classList.add('active');
+        deploymentTimestamp = Date.now();
+      }
+
+      // Call on initial load
+      updateDeploymentIndicator();
+
+      // Tab switching functionality
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          // Remove active class from all tabs and content
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          // Add active class to clicked tab and corresponding content
+          tab.classList.add('active');
+          const tabContent = document.getElementById(`${tab.dataset.tab}-tab`);
+          if (tabContent) {
+            tabContent.classList.add('active');
+          }
+          
+          // Resize chat input if switching to chat tab
+          if (tab.dataset.tab === 'ai-chat') {
+            const chatInput = document.getElementById('chat-input');
+            if (chatInput) {
+              chatInput.style.height = 'auto';
+              chatInput.style.height = (chatInput.scrollHeight) + 'px';
+            }
+          }
+        });
+      });
+
+      // Add to the existing message handler
+      const baseMessageHandler = window.onmessage;
+      window.onmessage = (event) => {
+        const msg = event.data.pluginMessage;
+        if (msg.type === 'code-deployed') {
+          updateDeploymentIndicator();
+        }
+        // Call original handler
+        if (baseMessageHandler) {
+          baseMessageHandler(event);
+        }
+      };
+
       const widthInput = document.getElementById('width');
       const heightInput = document.getElementById('height');
       const createButton = document.getElementById('create');
@@ -262,17 +1018,6 @@
           '<span class="warning">Needs formatting: Elements should be the same size</span>' : 
           '<span class="success">No formatting needed</span>'}</p>`;
 
-        // Update suggested size text
-        if (analysis.maxDimension > 0) {
-          document.getElementById('suggested-size').innerHTML = 
-            `Suggested minimum size: ${analysis.maxDimension}x${analysis.maxDimension}px`;
-          
-          // Only set default values if inputs are empty
-          if (!widthInput.value) widthInput.value = analysis.maxDimension;
-          if (!heightInput.value) heightInput.value = analysis.maxDimension;
-          validateInputs();
-        }
-
         return html;
       }
 
@@ -280,22 +1025,24 @@
         parent.postMessage({ pluginMessage: { type: 'count-groups' } }, '*')
       }
       
-      document.getElementById('create').onclick = () => {
-        if (!validateInputs()) {
-          alert('Please enter valid dimensions (greater than 0)');
+      function createSpriteSheet() {
+        // Validate dimensions
+        const width = parseInt(document.getElementById('width').value);
+        const height = parseInt(document.getElementById('height').value);
+        
+        if (isNaN(width) || width <= 0 || isNaN(height) || height <= 0) {
+          alert('Please enter valid dimensions');
           return;
         }
         
-        const width = parseInt(widthInput.value);
-        const height = parseInt(heightInput.value);
-        
         // Show progress checklist
         document.getElementById('progress-checklist').style.display = 'block';
-        // Reset checklist
+        // Reset checklist items
         document.querySelectorAll('.checklist-item').forEach(item => {
           item.classList.remove('done');
         });
         
+        // Send message to plugin without exportSize
         parent.postMessage({ 
           pluginMessage: { 
             type: 'create-sprite-sheet',
@@ -303,9 +1050,134 @@
             height
           }
         }, '*');
+        
+        // Update UI state
+        document.getElementById('create').disabled = true;
       }
 
-      // Listen for messages from the plugin code
+      document.getElementById('create').onclick = createSpriteSheet;
+
+      // Initialize export size input handlers
+      const exportWidthInput = document.getElementById('export-width');
+      const exportHeightInput = document.getElementById('export-height');
+      const resetExportSizeButton = document.getElementById('reset-export-size');
+      const exportScaleInfo = document.getElementById('export-scale-info');
+      const exportScaleValue = document.getElementById('export-scale');
+      const exportSheetWidth = document.getElementById('export-sheet-width');
+      const exportSheetHeight = document.getElementById('export-sheet-height');
+
+      // Keep track of original sizes
+      let originalFrameWidth = 0;
+      let originalFrameHeight = 0;
+      let frameCount = 0;
+      let sheetWidth = 0;
+      let sheetHeight = 0;
+      let frameToSheetRatio = 1;
+
+      // Calculate and display the export scale and new sheet dimensions
+      function updateExportScale() {
+        if (!originalFrameWidth || !originalFrameHeight) return 1.0;
+        
+        const exportWidth = parseInt(exportWidthInput.value) || 0;
+        const exportHeight = parseInt(exportHeightInput.value) || 0;
+        
+        // Enable/disable export button based on input values
+        const exportButton = document.getElementById('export-sheet');
+        exportButton.disabled = !(exportWidth > 0 && exportHeight > 0);
+        
+        if (exportWidth > 0 && exportHeight > 0) {
+          // Calculate scale as ratio of new frame size to original frame size
+          const scale = Math.min(
+            exportWidth / originalFrameWidth,
+            exportHeight / originalFrameHeight
+          );
+          
+          // Calculate new sheet dimensions based on the scale
+          const newSheetWidth = Math.round(sheetWidth * scale);
+          const newSheetHeight = Math.round(sheetHeight * scale);
+          
+          // Update UI with new values
+          exportSheetWidth.textContent = newSheetWidth.toString();
+          exportSheetHeight.textContent = newSheetHeight.toString();
+          
+          // Display scale to 2 decimal places
+          const displayScale = Math.round(scale * 100) / 100;
+          exportScaleValue.textContent = displayScale.toFixed(2);
+          
+          return scale;
+        }
+        
+        return 1.0; // Default scale
+      }
+
+      // Add event listeners for export size inputs
+      exportWidthInput.addEventListener('input', updateExportScale);
+      exportHeightInput.addEventListener('input', updateExportScale);
+
+      // Reset export size button
+      resetExportSizeButton.onclick = () => {
+        if (originalFrameWidth && originalFrameHeight) {
+          exportWidthInput.value = originalFrameWidth.toString();
+          exportHeightInput.value = originalFrameHeight.toString();
+          updateExportScale();
+        }
+      };
+
+      // Update the export button handler to explain the new process
+      document.getElementById('export-sheet').onclick = () => {
+        // Verify that we have valid input values
+        const exportWidth = parseInt(exportWidthInput.value) || 0;
+        const exportHeight = parseInt(exportHeightInput.value) || 0;
+        
+        if (exportWidth <= 0 || exportHeight <= 0) {
+          alert("Please enter valid export dimensions greater than 0.");
+          return;
+        }
+        
+        const scale = updateExportScale();
+        
+        // Show a processing message during export
+        const exportButton = document.getElementById('export-sheet');
+        const originalText = exportButton.textContent || 'Export';
+        exportButton.textContent = "Processing...";
+        exportButton.disabled = true;
+        
+        // Set up a timeout to re-enable the button if we don't get a response
+        const timeoutId = setTimeout(() => {
+          exportButton.textContent = originalText;
+          exportButton.disabled = false;
+        }, 10000); // 10 second timeout
+        
+        parent.postMessage({ 
+          pluginMessage: { 
+            type: 'export-sprite-sheet',
+            scale: scale,
+            frameWidth: exportWidth,
+            frameHeight: exportHeight
+          }
+        }, '*');
+        
+        // Add event handler for export completion or error
+        const messageHandler = (event) => {
+          const msg = event.data.pluginMessage;
+          if (msg && (msg.type === 'export-complete' || msg.type === 'export-error')) {
+            // Clear the timeout since we got a response
+            clearTimeout(timeoutId);
+            
+            // Restore the button state
+            exportButton.textContent = originalText;
+            exportButton.disabled = false;
+            
+            // Remove this handler
+            window.removeEventListener('message', messageHandler);
+          }
+        };
+        
+        // Register the handler
+        window.addEventListener('message', messageHandler);
+      };
+
+      // Update message handler
       window.onmessage = (event) => {
         const msg = event.data.pluginMessage;
         if (msg.type === 'selection-update') {
@@ -322,6 +1194,72 @@
             widthInput.value = '';
             heightInput.value = '';
             createButton.disabled = true;
+            document.getElementById('sprite-sheet-info').style.display = 'none';
+            document.getElementById('export-sheet').disabled = true;
+            
+            // Reset export size fields
+            exportWidthInput.value = '';
+            exportHeightInput.value = '';
+            originalFrameWidth = 0;
+            originalFrameHeight = 0;
+            frameCount = 0;
+            sheetWidth = 0;
+            sheetHeight = 0;
+          } else {
+            // Show frame info for any selected frame
+            document.getElementById('sprite-sheet-info').style.display = 'block';
+            
+            // Set frame dimensions (individual sprite frame size)
+            const frameWidth = Math.round(msg.frameWidth || 0);
+            const frameHeight = Math.round(msg.frameHeight || 0);
+            document.getElementById('frame-width').textContent = `${frameWidth}px`;
+            document.getElementById('frame-height').textContent = `${frameHeight}px`;
+            
+            // Set sheet dimensions (full sprite sheet size)
+            sheetWidth = Math.round(msg.sheetWidth || 0);
+            sheetHeight = Math.round(msg.sheetHeight || 0);
+            document.getElementById('sheet-width').textContent = `${sheetWidth}px`;
+            document.getElementById('sheet-height').textContent = `${sheetHeight}px`;
+            
+            // Store original frame dimensions for scaling calculations
+            originalFrameWidth = frameWidth;
+            originalFrameHeight = frameHeight;
+            
+            // Set frame count
+            frameCount = msg.elementCount || 0;
+            document.getElementById('sprite-frame-count').textContent = frameCount.toString();
+            
+            // Pre-populate export width and height with frame dimensions
+            if (!exportWidthInput.value || !exportHeightInput.value) {
+              exportWidthInput.value = frameWidth.toString();
+              exportHeightInput.value = frameHeight.toString();
+            }
+            
+            // Update container width/height with recommended container size
+            if (msg.recommendedContainerSize && msg.recommendedContainerSize > 0) {
+              document.getElementById('suggested-size').innerHTML = 
+                `Suggested container size: ${msg.recommendedContainerSize}×${msg.recommendedContainerSize}px`;
+              
+              // Pre-populate container dimensions
+              widthInput.value = msg.recommendedContainerSize.toString();
+              heightInput.value = msg.recommendedContainerSize.toString();
+              validateInputs();
+            }
+            
+            // Calculate export dimensions
+            updateExportScale();
+            
+            // Always enable the export button when a frame is selected
+            document.getElementById('export-sheet').disabled = false;
+            
+            // Update section title and button text based on whether it's a sprite sheet
+            document.getElementById('info-section-title').textContent = msg.isActualSpriteSheet 
+              ? 'Sprite Sheet Info' 
+              : 'Frame Info';
+            
+            document.getElementById('export-sheet').textContent = msg.isActualSpriteSheet 
+              ? 'Export Sprite Sheet' 
+              : 'Export Frame';
           }
         } else if (msg.type === 'progress-update') {
           // Update checklist
@@ -329,8 +1267,42 @@
           if (checkItem) {
             checkItem.classList.add('done');
           }
+        } else if (msg.type === 'sprite-sheet-created') {
+          // Show sprite sheet info
+          document.getElementById('sprite-sheet-info').style.display = 'block';
+          
+          // Set frame dimensions
+          const frameWidth = Math.round(msg.frameWidth || 0);
+          const frameHeight = Math.round(msg.frameHeight || 0);
+          document.getElementById('frame-width').textContent = `${frameWidth}px`;
+          document.getElementById('frame-height').textContent = `${frameHeight}px`;
+          
+          // Set sheet dimensions
+          sheetWidth = Math.round(msg.sheetWidth || 0);
+          sheetHeight = Math.round(msg.sheetHeight || 0);
+          document.getElementById('sheet-width').textContent = `${sheetWidth}px`;
+          document.getElementById('sheet-height').textContent = `${sheetHeight}px`;
+          
+          // Store original frame dimensions
+          originalFrameWidth = frameWidth;
+          originalFrameHeight = frameHeight;
+          
+          // Set frame count
+          frameCount = msg.spriteFrameCount || 0;
+          document.getElementById('sprite-frame-count').textContent = frameCount.toString();
+          
+          // Pre-populate export width and height with frame dimensions
+          exportWidthInput.value = frameWidth.toString();
+          exportHeightInput.value = frameHeight.toString();
+          
+          // Calculate export dimensions
+          updateExportScale();
+          
+          document.getElementById('export-sheet').disabled = false;
+          document.getElementById('info-section-title').textContent = 'Sprite Sheet Info';
+          document.getElementById('export-sheet').textContent = 'Export Sprite Sheet';
         }
-      }
+      };
     </script>
   </body>
 </html> 

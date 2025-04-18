@@ -4,14 +4,20 @@
   "description": "A Figma plugin to create sprite sheets from frames",
   "main": "dist/code.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json && npm run build:ui",
-    "build:ui": "mkdir -p dist && cp src/ui/ui.html dist/ui.html",
-    "watch": "tsc -p tsconfig.json --watch",
+    "clean": "rm -rf dist && mkdir -p dist",
+    "build:ts": "tsc -p tsconfig.json",
+    "build:ui": "cp -f src/ui/ui.html dist/ui.html",
+    "build": "npm run clean && npm run build:ts && npm run build:ui && echo '✅ Build completed successfully!'",
+    "dev": "npm run build && echo '🔄 Watching for changes...' && tsc -p tsconfig.json --watch",
+    "reload": "touch dist/ui.html dist/code.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": ["figma", "plugin", "sprite-sheet"],
   "author": "",
   "license": "MIT",
+  "dependencies": {
+    "openai": "^4.28.0"
+  },
   "devDependencies": {
     "@figma/plugin-typings": "^1.82.0",
     "@types/node": "^20.11.24",
